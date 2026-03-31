@@ -49,7 +49,8 @@ export function DetailPanel() {
     if (selectedRequest) {
       setSelectedGrade(selectedRequest.grade);
       setQuotePrice(selectedRequest.amount?.toString() || '');
-      // quoteDraft는 실제 API 응답에서 받아와야 함
+      setGradeReasoning(selectedRequest.gradeReasoning || '');
+      setQuoteDraft(selectedRequest.quoteDraft || '');
     }
   }, [selectedRequest]);
 
@@ -104,6 +105,8 @@ export function DetailPanel() {
   const canSendEstimate = selectedRequest.status === 'estimate_ready' || selectedRequest.status === 'pending_approval';
   const canReject = selectedRequest.status !== 'sent' && selectedRequest.status !== 'rejected' && selectedRequest.status !== 'completed';
   const canClassify = selectedRequest.status === 'new' || selectedRequest.status === 'classified';
+  const isReadOnly = selectedRequest.status === 'sent' || selectedRequest.status === 'completed' || selectedRequest.status === 'rejected';
+  const showClassifySection = true; // 항상 표시
 
   return (
     <div className="fixed right-0 top-0 h-full w-[800px] bg-card border-l border-border shadow-lg z-50 flex flex-col">
@@ -152,61 +155,67 @@ export function DetailPanel() {
           </div>
         </div>
 
-        {/* 분류 및 견적 작성 */}
-        {canClassify && (
-          <div className="p-6 border-b border-border space-y-4">
-            <h3 className="text-sm font-medium text-foreground">분류 및 견적 작성</h3>
-            
-            {/* 등급 선택 */}
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">등급</label>
-              <div className="flex gap-2">
-                {(['A', 'B', 'C'] as const).map((grade) => (
-                  <Button
-                    key={grade}
-                    variant={selectedGrade === grade ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setSelectedGrade(grade)}
-                  >
-                    {grade}등급
-                  </Button>
-                ))}
-              </div>
+        {/* 분류 및 견적 */}
+        <div className="p-6 border-b border-border space-y-4">
+          <h3 className="text-sm font-medium text-foreground">
+            {isReadOnly ? '분류 및 견적 정보' : '분류 및 견적 작성'}
+          </h3>
+          
+          {/* 등급 선택 */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">등급</label>
+            <div className="flex gap-2">
+              {(['A', 'B', 'C'] as const).map((grade) => (
+                <Button
+                  key={grade}
+                  variant={selectedGrade === grade ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => !isReadOnly && setSelectedGrade(grade)}
+                  disabled={isReadOnly}
+                >
+                  {grade}등급
+                </Button>
+              ))}
             </div>
+          </div>
 
-            {/* 분류 사유 */}
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">분류 사유</label>
-              <Textarea
-                value={gradeReasoning}
-                onChange={(e) => setGradeReasoning(e.target.value)}
-                placeholder="등급 분류 사유를 입력하세요..."
-                rows={2}
-              />
-            </div>
+          {/* 분류 사유 */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">분류 사유</label>
+            <Textarea
+              value={gradeReasoning}
+              onChange={(e) => setGradeReasoning(e.target.value)}
+              placeholder="등급 분류 사유를 입력하세요..."
+              rows={2}
+              disabled={isReadOnly}
+            />
+          </div>
 
-            {/* 견적 금액 */}
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">견적 금액 (원)</label>
-              <Input
-                type="number"
-                value={quotePrice}
-                onChange={(e) => setQuotePrice(e.target.value)}
-                placeholder="견적 금액을 입력하세요"
-              />
-            </div>
+          {/* 견적 금액 */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">견적 금액 (원)</label>
+            <Input
+              type="number"
+              value={quotePrice}
+              onChange={(e) => setQuotePrice(e.target.value)}
+              placeholder="견적 금액을 입력하세요"
+              disabled={isReadOnly}
+            />
+          </div>
 
-            {/* 견적 메시지 */}
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">견적 메시지</label>
-              <Textarea
-                value={quoteDraft}
-                onChange={(e) => setQuoteDraft(e.target.value)}
-                placeholder="고객에게 보낼 견적 메시지를 입력하세요..."
-                rows={4}
-              />
-            </div>
+          {/* 견적 메시지 */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">견적 메시지</label>
+            <Textarea
+              value={quoteDraft}
+              onChange={(e) => setQuoteDraft(e.target.value)}
+              placeholder="고객에게 보낼 견적 메시지를 입력하세요..."
+              rows={4}
+              disabled={isReadOnly}
+            />
+          </div>
 
+          {canClassify && (
             <Button 
               onClick={handleClassifyRequest}
               disabled={isClassifying || !selectedGrade}
@@ -215,8 +224,8 @@ export function DetailPanel() {
               <Save className="w-4 h-4 mr-2" />
               {isClassifying ? '저장 중...' : '분류 저장'}
             </Button>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* 진행 히스토리 */}
         <div className="p-6 space-y-4">
