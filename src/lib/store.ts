@@ -43,7 +43,7 @@ export const useStore = create<AppState>((set, get) => ({
           title: '견적 발송됨',
           description: `고객에게 견적서가 전송되었습니다\n"${message}"`,
           timestamp: new Date(),
-          icon: '✅'
+          icon: 'S'
         };
         
         return {
@@ -72,7 +72,7 @@ export const useStore = create<AppState>((set, get) => ({
           title: '요청 거절됨',
           description: `거절 사유: ${reason}`,
           timestamp: new Date(),
-          icon: '❌'
+          icon: 'R'
         };
         
         return {
@@ -101,7 +101,7 @@ export const useStore = create<AppState>((set, get) => ({
           title: '메모 추가됨',
           description: memo,
           timestamp: new Date(),
-          icon: '📝',
+          icon: 'M',
           memo
         };
         

@@ -6,10 +6,10 @@ import { X, Send, Ban, MessageSquarePlus } from 'lucide-react';
 import { useState } from 'react';
 import { HistoryEvent } from '@/types';
 
-const gradeColors = {
-  A: 'grade-a',
-  B: 'grade-b',
-  C: 'grade-c'
+const gradeStyles = {
+  A: 'font-bold',
+  B: 'font-medium',
+  C: 'font-normal'
 };
 
 const statusLabels = {
@@ -70,7 +70,7 @@ export function DetailPanel() {
       {/* 헤더 */}
       <div className="flex items-center justify-between p-6 border-b border-border">
         <div className="flex items-center gap-4">
-          <div className={`w-3 h-3 rounded-full bg-grade-${selectedRequest.grade.toLowerCase()}`}></div>
+          <div className="w-2 h-2 rounded-full bg-muted-foreground"></div>
           <div>
             <h2 className="text-lg font-medium text-foreground">
               {selectedRequest.customerName}
@@ -78,7 +78,7 @@ export function DetailPanel() {
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <span>{selectedRequest.category}</span>
               <span>•</span>
-              <span className={gradeColors[selectedRequest.grade]}>
+              <span className={`${gradeStyles[selectedRequest.grade]} text-foreground`}>
                 {selectedRequest.grade}등급
               </span>
               <span>•</span>

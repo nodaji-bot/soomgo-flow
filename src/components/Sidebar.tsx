@@ -2,13 +2,13 @@
 
 import { useStore } from '@/lib/store';
 import { FilterType } from '@/types';
-import { Settings } from 'lucide-react';
+import { Settings, FileText, Circle } from 'lucide-react';
 
 const filters: { id: FilterType; label: string; icon?: string; count?: number }[] = [
-  { id: 'all', label: '전체', icon: '📋' },
-  { id: 'grade-a', label: 'A등급', icon: '🟢' },
-  { id: 'grade-b', label: 'B등급', icon: '🟡' },
-  { id: 'grade-c', label: 'C등급', icon: '🔴' },
+  { id: 'all', label: '전체' },
+  { id: 'grade-a', label: 'A등급' },
+  { id: 'grade-b', label: 'B등급' },
+  { id: 'grade-c', label: 'C등급' },
 ];
 
 const statusFilters: { id: FilterType; label: string }[] = [
@@ -72,7 +72,11 @@ export function Sidebar() {
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-base">{filterItem.icon}</span>
+                  {filterItem.id === 'all' ? (
+                    <FileText className="w-4 h-4" />
+                  ) : (
+                    <span className="text-xs font-bold">{filterItem.id.split('-')[1]?.toUpperCase()}</span>
+                  )}
                   <span className="font-medium">{filterItem.label}</span>
                 </div>
                 <span className="text-xs bg-muted px-2 py-1 rounded">{count}</span>

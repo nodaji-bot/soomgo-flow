@@ -11,7 +11,7 @@ const generateHistoryEvents = (request: any, grade: Grade): HistoryEvent[] => {
     title: '요청 수신',
     description: `${request.category || '기타'}, ${request.location || '전국'}`,
     timestamp: new Date(now.getTime() - (parseInt(request.timeAgo) + 1) * 60 * 60 * 1000),
-    icon: '🔵'
+    icon: 'R'
   });
 
   // 모든 요청: AI 분류 완료
@@ -27,7 +27,7 @@ const generateHistoryEvents = (request: any, grade: Grade): HistoryEvent[] => {
     title: 'AI 분류 완료',
     description: `${grade}등급\n"${gradeTexts[grade]}"`,
     timestamp: new Date(now.getTime() - parseInt(request.timeAgo) * 60 * 60 * 1000 + 1 * 60 * 1000),
-    icon: '🤖'
+    icon: 'A'
   });
 
   // A/B 등급: 견적 초안 생성
@@ -68,7 +68,7 @@ const generateHistoryEvents = (request: any, grade: Grade): HistoryEvent[] => {
       title: '견적 초안 생성',
       description: `금액: ${amount.toLocaleString()}원\n"${message}"`,
       timestamp: new Date(now.getTime() - parseInt(request.timeAgo) * 60 * 60 * 1000 + 2 * 60 * 1000),
-      icon: '📝',
+      icon: 'E',
       amount
     });
   }
@@ -81,7 +81,7 @@ const generateHistoryEvents = (request: any, grade: Grade): HistoryEvent[] => {
       title: '승인 대기 중',
       description: '오퍼레이터 검토 중',
       timestamp: new Date(now.getTime() - parseInt(request.timeAgo) * 60 * 60 * 1000 + 15 * 60 * 1000),
-      icon: '⏳'
+      icon: 'W'
     });
   }
 
@@ -93,7 +93,7 @@ const generateHistoryEvents = (request: any, grade: Grade): HistoryEvent[] => {
       title: '견적 발송됨',
       description: '고객에게 견적서가 전송되었습니다',
       timestamp: new Date(now.getTime() - parseInt(request.timeAgo) * 60 * 60 * 1000 + 30 * 60 * 1000),
-      icon: '✅'
+      icon: 'S'
     });
   }
 

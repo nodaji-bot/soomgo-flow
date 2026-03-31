@@ -9,10 +9,10 @@ interface RequestCardProps {
   isSelected?: boolean;
 }
 
-const gradeColors = {
-  A: 'grade-a',
-  B: 'grade-b',
-  C: 'grade-c'
+const gradeStyles = {
+  A: 'font-bold text-sm',
+  B: 'font-medium text-sm', 
+  C: 'font-normal text-xs'
 };
 
 const statusLabels = {
@@ -47,9 +47,9 @@ export function RequestCard({ request, isSelected }: RequestCardProps) {
             onClick={(e) => e.stopPropagation()}
           />
           
-          <div className={`w-2 h-2 rounded-full flex-shrink-0 bg-${gradeColors[request.grade]}`}></div>
+          <div className="w-1 h-1 rounded-full flex-shrink-0 bg-muted-foreground"></div>
           
-          <span className={`text-xs font-medium ${gradeColors[request.grade]} flex-shrink-0`}>
+          <span className={`${gradeStyles[request.grade]} text-foreground flex-shrink-0`}>
             {request.grade}
           </span>
           
