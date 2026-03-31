@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { ViewToggle } from '@/components/ViewToggle';
 import { ListView } from '@/components/ListView';
@@ -10,24 +11,41 @@ import { RejectModal } from '@/components/RejectModal';
 import { AuthGuard } from '@/components/AuthGuard';
 import { useStore } from '@/lib/store';
 import { useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+
+function DeepLinkHandler() {
+  const searchParams = useSearchParams();
+  const { requests, setSelectedRequest } = useStore();
+
+  useEffect(() => {
+    const requestId = searchParams.get('id');
+    if (requestId && requests.length > 0) {
+      const target = requests.find(r => r.id === requestId);
+      if (target) {
+        setSelectedRequest(target);
+      }
+    }
+  }, [searchParams, requests, setSelectedRequest]);
+
+  return null;
+}
 
 export default function Home() {
   const { viewType, showDetailPanel, loadRequests } = useStore();
 
   useEffect(() => {
-    // 컴포넌트 마운트 시 데이터 로드
     loadRequests();
   }, [loadRequests]);
 
   return (
     <AuthGuard>
+      <Suspense fallback={null}>
+        <DeepLinkHandler />
+      </Suspense>
       <div className="flex h-screen overflow-hidden">
-        {/* 사이드바 */}
         <Sidebar />
         
-        {/* 메인 영역 */}
-        <div className={`flex-1 flex flex-col ${showDetailPanel ? 'mr-[600px]' : ''} transition-all duration-200`}>
-          {/* 헤더 */}
+        <div className={`flex-1 flex flex-col ${showDetailPanel ? 'mr-[800px]' : ''} transition-all duration-200`}>
           <div className="flex items-center justify-between p-6 border-b border-border">
             <div>
               <h1 className="text-xl font-medium text-foreground">요청 관리</h1>
@@ -35,11 +53,9 @@ export default function Home() {
                 고객 요청을 검토하고 견적을 발송하세요
               </p>
             </div>
-            
             <ViewToggle />
           </div>
           
-          {/* 메인 컨텐츠 */}
           <div className="flex-1 overflow-hidden">
             {viewType === 'list' ? (
               <div className="h-full overflow-y-auto">
@@ -53,10 +69,7 @@ export default function Home() {
           </div>
         </div>
         
-        {/* 상세 패널 */}
         {showDetailPanel && <DetailPanel />}
-        
-        {/* 모달들 */}
         <ConfirmModal />
         <RejectModal />
       </div>
