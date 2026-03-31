@@ -48,7 +48,7 @@ export function RejectModal() {
 
   return (
     <Dialog open={showRejectModal} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-lg font-medium">요청 거절</DialogTitle>
         </DialogHeader>

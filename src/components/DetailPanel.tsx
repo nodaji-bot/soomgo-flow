@@ -66,7 +66,7 @@ export function DetailPanel() {
   const canReject = selectedRequest.status !== 'sent' && selectedRequest.status !== 'rejected' && selectedRequest.status !== 'completed';
 
   return (
-    <div className="fixed right-0 top-0 h-full w-[600px] bg-card border-l border-border shadow-lg z-50 flex flex-col">
+    <div className="fixed right-0 top-0 h-full w-[800px] bg-card border-l border-border shadow-lg z-50 flex flex-col">
       {/* 헤더 */}
       <div className="flex items-center justify-between p-6 border-b border-border">
         <div className="flex items-center gap-4">

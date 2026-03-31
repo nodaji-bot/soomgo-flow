@@ -45,7 +45,7 @@ export function ConfirmModal() {
 
   return (
     <Dialog open={showConfirmModal} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-lg font-medium">견적 발송 확인</DialogTitle>
         </DialogHeader>
