@@ -4,34 +4,34 @@
 
 /* 검정 모노톤 테마 */
 :root {
-  --background: 0 0 0; /* #000000 */
-  --foreground: 204 204 204; /* #CCCCCC - 밝은 회색으로 변경 */
-  --muted: 10 10 10; /* #0A0A0A */
-  --muted-foreground: 136 136 136; /* #888888 */
-  --border: 26 26 26; /* #1A1A1A */
-  --input: 17 17 17; /* #111111 */
-  --primary: 204 204 204; /* #CCCCCC - 밝은 회색으로 변경 */
-  --primary-foreground: 0 0 0;
-  --secondary: 17 17 17; /* #111111 */
-  --secondary-foreground: 204 204 204; /* #CCCCCC - 밝은 회색으로 변경 */
-  --card: 10 10 10; /* #0A0A0A */
-  --card-foreground: 204 204 204; /* #CCCCCC - 밝은 회색으로 변경 */
-  --popover: 17 17 17;
-  --popover-foreground: 204 204 204; /* #CCCCCC - 밝은 회색으로 변경 */
-  --destructive: 85 85 85; /* #555555 - 회색으로 변경 */
-  --destructive-foreground: 204 204 204; /* #CCCCCC - 밝은 회색으로 변경 */
-  --accent: 17 17 17;
-  --accent-foreground: 204 204 204; /* #CCCCCC - 밝은 회색으로 변경 */
-  --ring: 51 51 51; /* #333333 */
+  --background: 0 0% 0%; /* #000000 */
+  --foreground: 0 0% 80%; /* #CCCCCC */
+  --muted: 0 0% 4%; /* #0A0A0A */
+  --muted-foreground: 0 0% 53%; /* #888888 */
+  --border: 0 0% 10%; /* #1A1A1A */
+  --input: 0 0% 7%; /* #111111 */
+  --primary: 0 0% 80%; /* #CCCCCC */
+  --primary-foreground: 0 0% 0%;
+  --secondary: 0 0% 7%; /* #111111 */
+  --secondary-foreground: 0 0% 80%; /* #CCCCCC */
+  --card: 0 0% 4%; /* #0A0A0A */
+  --card-foreground: 0 0% 80%; /* #CCCCCC */
+  --popover: 0 0% 7%;
+  --popover-foreground: 0 0% 80%; /* #CCCCCC */
+  --destructive: 0 0% 33%; /* #555555 */
+  --destructive-foreground: 0 0% 80%; /* #CCCCCC */
+  --accent: 0 0% 7%;
+  --accent-foreground: 0 0% 80%; /* #CCCCCC */
+  --ring: 0 0% 20%; /* #333333 */
   --radius: 4px;
   
-  /* 등급 색상 - 아주 작은 도트에만 사용하는 미묘한 색상 (4px 도트용) */
-  --grade-a: 85 85 85; /* #555555 - 짙은 회색 */
-  --grade-b: 68 68 68; /* #444444 - 중간 회색 */
-  --grade-c: 51 51 51; /* #333333 - 밝은 회색 */
+  /* 등급 - 미묘한 밝기 차이만 */
+  --grade-a: 0 0% 33%; /* #555555 */
+  --grade-b: 0 0% 27%; /* #444444 */
+  --grade-c: 0 0% 20%; /* #333333 */
   
-  /* 브랜드 컬러 - 회색으로 변경 */
-  --brand: 204 204 204; /* #CCCCCC - 밝은 회색으로 변경 */
+  /* 브랜드 - 흰색 계열 */
+  --brand: 0 0% 80%; /* #CCCCCC */
 }
 
 html,
