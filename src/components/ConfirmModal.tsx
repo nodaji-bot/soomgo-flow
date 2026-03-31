@@ -22,22 +22,10 @@ export function ConfirmModal() {
     return null;
   }
 
-  // 모달이 처음 열릴 때 기본값 설정
+  // 모달이 처음 열릴 때 DB에 저장된 견적 정보 로드
   if (editableMessage === '' && editablePrice === '') {
-    // DetailPanel에서 설정한 견적 정보를 가져옴
-    // 실제로는 selectedRequest에 quoteDraft와 quotePrice가 있어야 함
     setEditablePrice(selectedRequest.amount?.toString() || '');
-    
-    // 기본 메시지 (톤 가이드 기반)
-    const defaultMessage = `안녕하세요! ${selectedRequest.category} 관련 요청 확인했습니다.
-
-${selectedRequest.description ? selectedRequest.description + ' 작업이군요.' : ''}
-
-경험상 이런 작업은 보통 ${selectedRequest.amount ? selectedRequest.amount.toLocaleString() + '원' : 'XX만원'} 정도 예상됩니다.
-
-구체적인 요구사항이나 추가로 확인할 점이 있으면 알려주세요.`;
-
-    setEditableMessage(defaultMessage);
+    setEditableMessage(selectedRequest.quoteDraft || '');
   }
 
   const handleSend = async () => {
