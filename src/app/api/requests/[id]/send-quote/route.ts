@@ -88,8 +88,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     const now = new Date().toISOString();
 
-    // 성공한 경우 DB 상태 업데이트
-    if (scriptResult.status === 'sent' || scriptResult.status === 'success') {
+    // 성공한 경우 DB 상태 업데이트 (sent_unconfirmed도 성공 처리 — 버튼 클릭은 완료)
+    if (scriptResult.status === 'sent' || scriptResult.status === 'success' || scriptResult.status === 'sent_unconfirmed') {
       const transaction = db.transaction(() => {
         // 1. requests 테이블 업데이트
         const updateRequest = db.prepare(`
