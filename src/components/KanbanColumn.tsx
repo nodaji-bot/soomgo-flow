@@ -12,12 +12,12 @@ interface KanbanColumnProps {
 }
 
 const columnStyles = {
-  new: 'border-blue-500/20 bg-blue-500/5',
-  classified: 'border-purple-500/20 bg-purple-500/5',
-  pending_approval: 'border-yellow-500/20 bg-yellow-500/5',
-  sent: 'border-green-500/20 bg-green-500/5',
-  in_progress: 'border-orange-500/20 bg-orange-500/5',
-  completed: 'border-gray-500/20 bg-gray-500/5'
+  new: 'border-neutral-500/20 bg-neutral-500/5',
+  classified: 'border-neutral-400/20 bg-neutral-400/5',
+  pending_approval: 'border-neutral-600/20 bg-neutral-600/5',
+  sent: 'border-neutral-700/20 bg-neutral-700/5',
+  in_progress: 'border-neutral-300/20 bg-neutral-300/5',
+  completed: 'border-neutral-200/20 bg-neutral-200/5'
 }
 
 export function KanbanColumn({ type, title, requests }: KanbanColumnProps) {
@@ -26,7 +26,7 @@ export function KanbanColumn({ type, title, requests }: KanbanColumnProps) {
   })
 
   return (
-    <Card className={`min-h-[600px] w-80 ${columnStyles[type]} ${isOver ? 'ring-2 ring-blue-500' : ''}`}>
+    <Card className={`min-h-[600px] w-80 ${columnStyles[type]} ${isOver ? 'ring-2 ring-neutral-400' : ''}`}>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between text-sm font-medium">
           <span>{title}</span>

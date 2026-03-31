@@ -5,12 +5,12 @@ import { RequestCard } from './RequestCard';
 import { Request, RequestStatus } from '@/types';
 
 const columns: { id: RequestStatus; title: string; color: string }[] = [
-  { id: 'new', title: '신규', color: 'bg-blue-500' },
-  { id: 'estimate_ready', title: '견적초안', color: 'bg-yellow-500' },
-  { id: 'pending_approval', title: '승인대기', color: 'bg-orange-500' },
-  { id: 'sent', title: '발송완료', color: 'bg-green-500' },
-  { id: 'in_progress', title: '진행중', color: 'bg-purple-500' },
-  { id: 'completed', title: '완료', color: 'bg-gray-500' },
+  { id: 'new', title: '신규', color: 'bg-neutral-700' },
+  { id: 'estimate_ready', title: '견적초안', color: 'bg-neutral-600' },
+  { id: 'pending_approval', title: '승인대기', color: 'bg-neutral-500' },
+  { id: 'sent', title: '발송완료', color: 'bg-neutral-800' },
+  { id: 'in_progress', title: '진행중', color: 'bg-neutral-400' },
+  { id: 'completed', title: '완료', color: 'bg-neutral-300' },
 ];
 
 export function KanbanView() {

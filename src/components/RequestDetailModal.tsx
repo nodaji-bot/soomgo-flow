@@ -21,9 +21,9 @@ interface RequestDetailModalProps {
 }
 
 const gradeColors = {
-  A: 'bg-green-500',
-  B: 'bg-yellow-500',
-  C: 'bg-red-500'
+  A: 'bg-neutral-700',
+  B: 'bg-neutral-600',
+  C: 'bg-neutral-500'
 }
 
 const statusLabels: Record<KanbanColumn, string> = {
@@ -125,7 +125,7 @@ export function RequestDetailModal({ request, open, onClose }: RequestDetailModa
                 {request.detail.referenceUrl && (
                   <p><span className="font-medium">참고 URL:</span> 
                     <a href={request.detail.referenceUrl} target="_blank" rel="noopener noreferrer" 
-                       className="text-blue-400 hover:underline ml-1">
+                       className="text-neutral-400 hover:underline ml-1">
                       링크 보기
                     </a>
                   </p>

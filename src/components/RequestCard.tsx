@@ -35,53 +35,64 @@ export function RequestCard({ request, isSelected }: RequestCardProps) {
   return (
     <div
       onClick={handleClick}
-      className={`p-4 bg-card border border-border rounded cursor-pointer hover-subtle transition-colors ${
+      className={`flex items-center gap-4 px-4 py-3 bg-card border border-border rounded cursor-pointer hover-subtle transition-colors min-h-[60px] ${
         isSelected ? 'selected-indicator border-brand' : ''
       }`}
     >
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <input
-            type="checkbox"
-            className="flex-shrink-0"
-            onClick={(e) => e.stopPropagation()}
-          />
-          
-          <div className="w-1 h-1 rounded-full flex-shrink-0 bg-muted-foreground"></div>
-          
-          <span className={`${gradeStyles[request.grade]} text-foreground flex-shrink-0`}>
-            {request.grade}
-          </span>
-          
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-4 text-sm">
-              <span className="font-medium text-foreground truncate min-w-0">
-                {request.customerName}
-              </span>
-              <span className="text-muted-foreground truncate">
-                {request.category}
-              </span>
-              <span className="text-foreground font-medium flex-shrink-0">
-                {request.amount ? `${request.amount.toLocaleString()}원` : '-'}
-              </span>
-              <Badge 
-                variant="secondary" 
-                className="text-xs flex-shrink-0"
-              >
-                {statusLabels[request.status]}
-              </Badge>
-              <span className="text-muted-foreground text-xs flex-shrink-0">
-                {request.timeAgo}
-              </span>
-            </div>
-            
-            {request.description && (
-              <p className="text-xs text-muted-foreground mt-1 truncate">
-                {request.description}
-              </p>
-            )}
-          </div>
+      <div className="w-4 flex-shrink-0">
+        <input
+          type="checkbox"
+          className="w-4 h-4"
+          onClick={(e) => e.stopPropagation()}
+        />
+      </div>
+      
+      <div className="w-8 flex-shrink-0 flex justify-center">
+        <div className="w-2 h-2 rounded-full bg-muted-foreground"></div>
+      </div>
+      
+      <div className="w-8 flex-shrink-0 text-center">
+        <span className={`${gradeStyles[request.grade]} text-foreground`}>
+          {request.grade}
+        </span>
+      </div>
+      
+      <div className="flex-1 min-w-0">
+        <div className="font-medium text-foreground truncate">
+          {request.customerName}
         </div>
+        {request.description && (
+          <div className="text-xs text-muted-foreground truncate">
+            {request.description}
+          </div>
+        )}
+      </div>
+      
+      <div className="w-32 flex-shrink-0">
+        <span className="text-muted-foreground truncate text-sm">
+          {request.category}
+        </span>
+      </div>
+      
+      <div className="w-24 flex-shrink-0 text-right">
+        <span className="text-foreground font-medium text-sm">
+          {request.amount ? `${request.amount.toLocaleString()}원` : '-'}
+        </span>
+      </div>
+      
+      <div className="w-20 flex-shrink-0">
+        <Badge 
+          variant="secondary" 
+          className="text-xs w-full justify-center bg-neutral-700 text-neutral-200 border-neutral-600"
+        >
+          {statusLabels[request.status]}
+        </Badge>
+      </div>
+      
+      <div className="w-20 flex-shrink-0 text-right">
+        <span className="text-muted-foreground text-xs">
+          {request.timeAgo}
+        </span>
       </div>
     </div>
   );
