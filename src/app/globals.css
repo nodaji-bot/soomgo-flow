@@ -2,43 +2,216 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Linear 스타일 다크 테마 색상 */
 :root {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 210 40% 98%;
-  --primary-foreground: 222.2 84% 4.9%;
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 212.7 26.8% 83.9%;
-  --radius: 0.5rem;
+  --background: 10 10 10; /* #0A0A0A */
+  --foreground: 229 229 229; /* #E5E5E5 */
+  --muted: 17 17 17; /* #111 */
+  --muted-foreground: 136 136 136; /* #888 */
+  --border: 34 34 34; /* #222 */
+  --input: 17 17 17;
+  --primary: 229 229 229;
+  --primary-foreground: 10 10 10;
+  --secondary: 26 26 26; /* #1A1A1A */
+  --secondary-foreground: 229 229 229;
+  --card: 17 17 17;
+  --card-foreground: 229 229 229;
+  --popover: 17 17 17;
+  --popover-foreground: 229 229 229;
+  --destructive: 239 68 68; /* #EF4444 */
+  --destructive-foreground: 255 255 255;
+  --accent: 26 26 26;
+  --accent-foreground: 229 229 229;
+  --ring: 34 34 34;
+  --radius: 4px; /* 최소한의 border-radius */
+  
+  /* 등급 색상 */
+  --grade-a: 34 197 94; /* #22C55E */
+  --grade-b: 234 179 8; /* #EAB308 */
+  --grade-c: 239 68 68; /* #EF4444 */
+  
+  /* 브랜드 컬러 (Linear 스타일 블루) */
+  --brand: 99 102 241; /* #6366F1 */
 }
 
-@layer base {
-  * {
-    border-color: hsl(var(--border));
-  }
-  body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-  }
+html,
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
-html {
-  color-scheme: dark;
+* {
+  border-color: hsl(var(--border));
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Linear 스타일 스크롤바 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--foreground));
+}
+
+/* 등급 색상 유틸리티 */
+.grade-a {
+  color: hsl(var(--grade-a));
+}
+
+.grade-b {
+  color: hsl(var(--grade-b));
+}
+
+.grade-c {
+  color: hsl(var(--grade-c));
+}
+
+.bg-grade-a {
+  background-color: hsl(var(--grade-a));
+}
+
+.bg-grade-b {
+  background-color: hsl(var(--grade-b));
+}
+
+.bg-grade-c {
+  background-color: hsl(var(--grade-c));
+}
+
+/* 브랜드 컬러 */
+.brand-border {
+  border-color: hsl(var(--brand));
+}
+
+.brand-bg {
+  background-color: hsl(var(--brand));
+}
+
+.brand-text {
+  color: hsl(var(--brand));
+}
+
+/* Linear 스타일 호버 효과 */
+.hover-subtle:hover {
+  background-color: hsl(var(--secondary));
+}
+
+/* Linear 스타일 포커스 */
+.focus-ring:focus {
+  outline: 2px solid hsl(var(--brand));
+  outline-offset: -2px;
+}
+
+/* 선택된 카드 인디케이터 */
+.selected-indicator {
+  position: relative;
+}
+
+.selected-indicator::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: hsl(var(--brand));
+}
+
+/* Linear 스타일 애니메이션 */
+.slide-enter {
+  transform: translateX(100%);
+}
+
+.slide-enter-active {
+  transform: translateX(0);
+  transition: transform 200ms ease-out;
+}
+
+.slide-exit {
+  transform: translateX(0);
+}
+
+.slide-exit-active {
+  transform: translateX(100%);
+  transition: transform 200ms ease-in;
+}
+
+/* 텍스트 선택 색상 */
+::selection {
+  background-color: hsl(var(--brand) / 0.3);
+}
+
+/* Linear 스타일 input */
+input[type="text"],
+input[type="email"],
+textarea {
+  background-color: hsl(var(--input));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: hsl(var(--brand));
+}
+
+/* Linear 스타일 버튼 */
+button {
+  font-family: inherit;
+  font-weight: 500;
+  transition: all 0.2s;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+/* 체크박스 스타일 */
+input[type="checkbox"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid hsl(var(--border));
+  border-radius: 2px;
+  background-color: transparent;
+  cursor: pointer;
+  position: relative;
+}
+
+input[type="checkbox"]:checked {
+  background-color: hsl(var(--brand));
+  border-color: hsl(var(--brand));
+}
+
+input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
 }

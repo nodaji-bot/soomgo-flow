@@ -1,73 +1,121 @@
-import { create } from 'zustand'
-import { Request, KanbanColumn, KanbanData } from '@/types'
-import { seedRequests } from '@/data/seedData'
+import { create } from 'zustand';
+import { AppState, Request, ViewType, FilterType, HistoryEvent } from '@/types';
+import { mockRequests } from '@/data/mock-requests';
 
-interface KanbanStore {
-  requests: Request[]
-  kanbanData: KanbanData
-  selectedRequest: Request | null
-  moveRequest: (requestId: string, newStatus: KanbanColumn) => void
-  updateRequest: (requestId: string, updates: Partial<Request>) => void
-  setSelectedRequest: (request: Request | null) => void
-  getRequestsByStatus: (status: KanbanColumn) => Request[]
-}
-
-// 시드 데이터를 칸반 데이터로 변환
-const groupRequestsByStatus = (requests: Request[]): KanbanData => {
-  const kanban: KanbanData = {
-    new: [],
-    classified: [],
-    pending_approval: [],
-    sent: [],
-    in_progress: [],
-    completed: []
-  }
-  
-  requests.forEach(request => {
-    if (request.status in kanban) {
-      kanban[request.status as KanbanColumn].push(request)
-    }
-  })
-  
-  return kanban
-}
-
-export const useKanbanStore = create<KanbanStore>((set, get) => ({
-  requests: seedRequests,
-  kanbanData: groupRequestsByStatus(seedRequests),
+export const useStore = create<AppState>((set, get) => ({
+  requests: mockRequests,
   selectedRequest: null,
+  viewType: 'list',
+  filter: 'all',
+  showDetailPanel: false,
+  showConfirmModal: false,
+  showRejectModal: false,
 
-  moveRequest: (requestId: string, newStatus: KanbanColumn) => {
-    set(state => {
-      const updatedRequests = state.requests.map(request =>
-        request.id === requestId ? { ...request, status: newStatus } : request
-      )
-      
-      return {
-        requests: updatedRequests,
-        kanbanData: groupRequestsByStatus(updatedRequests)
+  setSelectedRequest: (request) => {
+    set({ 
+      selectedRequest: request,
+      showDetailPanel: !!request 
+    });
+  },
+
+  setViewType: (viewType) => set({ viewType }),
+
+  setFilter: (filter) => set({ filter }),
+
+  setShowDetailPanel: (show) => {
+    if (!show) {
+      set({ selectedRequest: null });
+    }
+    set({ showDetailPanel: show });
+  },
+
+  setShowConfirmModal: (show) => set({ showConfirmModal: show }),
+
+  setShowRejectModal: (show) => set({ showRejectModal: show }),
+
+  sendEstimate: (requestId, message) => {
+    const { requests } = get();
+    const updatedRequests = requests.map(request => {
+      if (request.id === requestId) {
+        const newEvent: HistoryEvent = {
+          id: `${requestId}-sent-${Date.now()}`,
+          type: 'sent',
+          title: '견적 발송됨',
+          description: `고객에게 견적서가 전송되었습니다\n"${message}"`,
+          timestamp: new Date(),
+          icon: '✅'
+        };
+        
+        return {
+          ...request,
+          status: 'sent' as const,
+          history: [...request.history, newEvent]
+        };
       }
-    })
+      return request;
+    });
+
+    set({ 
+      requests: updatedRequests,
+      selectedRequest: updatedRequests.find(r => r.id === requestId) || null,
+      showConfirmModal: false 
+    });
   },
 
-  updateRequest: (requestId: string, updates: Partial<Request>) => {
-    set(state => {
-      const updatedRequests = state.requests.map(request =>
-        request.id === requestId ? { ...request, ...updates } : request
-      )
-      
-      return {
-        requests: updatedRequests,
-        kanbanData: groupRequestsByStatus(updatedRequests)
+  rejectRequest: (requestId, reason) => {
+    const { requests } = get();
+    const updatedRequests = requests.map(request => {
+      if (request.id === requestId) {
+        const newEvent: HistoryEvent = {
+          id: `${requestId}-rejected-${Date.now()}`,
+          type: 'rejected',
+          title: '요청 거절됨',
+          description: `거절 사유: ${reason}`,
+          timestamp: new Date(),
+          icon: '❌'
+        };
+        
+        return {
+          ...request,
+          status: 'rejected' as const,
+          history: [...request.history, newEvent]
+        };
       }
-    })
+      return request;
+    });
+
+    set({ 
+      requests: updatedRequests,
+      selectedRequest: updatedRequests.find(r => r.id === requestId) || null,
+      showRejectModal: false 
+    });
   },
 
-  setSelectedRequest: (request: Request | null) => {
-    set({ selectedRequest: request })
-  },
+  addMemo: (requestId, memo) => {
+    const { requests } = get();
+    const updatedRequests = requests.map(request => {
+      if (request.id === requestId) {
+        const newEvent: HistoryEvent = {
+          id: `${requestId}-memo-${Date.now()}`,
+          type: 'memo_added',
+          title: '메모 추가됨',
+          description: memo,
+          timestamp: new Date(),
+          icon: '📝',
+          memo
+        };
+        
+        return {
+          ...request,
+          history: [...request.history, newEvent]
+        };
+      }
+      return request;
+    });
 
-  getRequestsByStatus: (status: KanbanColumn) => {
-    return get().kanbanData[status] || []
-  }
-}))
+    set({ 
+      requests: updatedRequests,
+      selectedRequest: updatedRequests.find(r => r.id === requestId) || null
+    });
+  },
+}));
