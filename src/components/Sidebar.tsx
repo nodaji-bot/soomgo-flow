@@ -2,7 +2,7 @@
 
 import { useStore } from '@/lib/store';
 import { FilterType } from '@/types';
-import { Settings, FileText, Circle } from 'lucide-react';
+import { Settings, FileText, Circle, Archive } from 'lucide-react';
 
 const filters: { id: FilterType; label: string; icon?: string; count?: number }[] = [
   { id: 'all', label: '전체' },
@@ -25,23 +25,25 @@ export function Sidebar() {
   const getFilterCount = (filterId: FilterType) => {
     switch (filterId) {
       case 'all':
-        return requests.length;
+        return requests.filter(r => !r.isArchived).length;
       case 'grade-a':
-        return requests.filter(r => r.grade === 'A').length;
+        return requests.filter(r => r.grade === 'A' && !r.isArchived).length;
       case 'grade-b':
-        return requests.filter(r => r.grade === 'B').length;
+        return requests.filter(r => r.grade === 'B' && !r.isArchived).length;
       case 'grade-c':
-        return requests.filter(r => r.grade === 'C').length;
+        return requests.filter(r => r.grade === 'C' && !r.isArchived).length;
       case 'status-new':
-        return requests.filter(r => r.status === 'new').length;
+        return requests.filter(r => r.status === 'new' && !r.isArchived).length;
       case 'status-pending':
-        return requests.filter(r => r.status === 'pending_approval').length;
+        return requests.filter(r => r.status === 'pending_approval' && !r.isArchived).length;
       case 'status-sent':
-        return requests.filter(r => r.status === 'sent').length;
+        return requests.filter(r => r.status === 'sent' && !r.isArchived).length;
       case 'status-progress':
-        return requests.filter(r => r.status === 'in_progress').length;
+        return requests.filter(r => r.status === 'in_progress' && !r.isArchived).length;
       case 'status-completed':
-        return requests.filter(r => r.status === 'completed').length;
+        return requests.filter(r => r.status === 'completed' && !r.isArchived).length;
+      case 'archived':
+        return requests.filter(r => r.isArchived).length;
       default:
         return 0;
     }
@@ -113,6 +115,25 @@ export function Sidebar() {
               </button>
             );
           })}
+        </div>
+
+        {/* 구분선 */}
+        <div className="border-t border-border"></div>
+
+        {/* 아카이브 필터 */}
+        <div className="space-y-1">
+          <button
+            onClick={() => setFilter('archived')}
+            className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded transition-colors hover-subtle ${
+              filter === 'archived' ? 'bg-secondary text-foreground' : 'text-muted-foreground'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <Archive className="w-4 h-4" />
+              <span>아카이브</span>
+            </div>
+            <span className="text-xs bg-muted px-2 py-1 rounded">{getFilterCount('archived')}</span>
+          </button>
         </div>
       </div>
 

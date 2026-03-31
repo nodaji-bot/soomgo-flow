@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { verifyAuth } from '../../../auth/verify/route';
+import { getDb } from '@/lib/db';
 
 const execAsync = promisify(exec);
-const STATES_DATA_PATH = '/Users/picl/.openclaw/workspace/soomgo-research/data/request-states.json';
-const CRAWL_DATA_PATH = '/Users/picl/.openclaw/workspace/soomgo-research/data/last-crawl.json';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  // 토큰 검증
   if (!verifyAuth(request)) {
     return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
   }
@@ -23,18 +20,18 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ error: '가격과 메시지를 모두 입력해주세요.' }, { status: 400 });
     }
 
-    // 숨고 ID 찾기 (크롤링 데이터에서)
-    let crawlData = [];
-    let soomgoId = id;
-    
-    if (fs.existsSync(CRAWL_DATA_PATH)) {
-      const crawlContent = fs.readFileSync(CRAWL_DATA_PATH, 'utf-8');
-      crawlData = JSON.parse(crawlContent);
-      const foundRequest = crawlData.find((item: any) => item.id === id);
-      if (foundRequest) {
-        soomgoId = foundRequest.id; // 실제로는 숨고 요청 ID가 여기에 있음
-      }
+    const db = await getDb();
+    if (!db) {
+      return NextResponse.json({ error: 'DB 연결 실패' }, { status: 500 });
     }
+
+    // 요청 정보 조회
+    const existingRequest = db.prepare('SELECT * FROM requests WHERE id = ?').get(id);
+    if (!existingRequest) {
+      return NextResponse.json({ error: '요청을 찾을 수 없습니다.' }, { status: 404 });
+    }
+
+    const soomgoId = id; // 숨고 요청 ID는 id와 동일
 
     // 견적 발송 스크립트 실행
     const scriptPath = '/Users/picl/.openclaw/workspace/soomgo-research/soomgo-send-quote.js';
@@ -89,47 +86,51 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       }, { status: 500 });
     }
 
-    // 성공한 경우 상태 업데이트
+    const now = new Date().toISOString();
+
+    // 성공한 경우 DB 상태 업데이트
     if (scriptResult.status === 'sent' || scriptResult.status === 'success') {
-      let statesData = {};
-      if (fs.existsSync(STATES_DATA_PATH)) {
-        const content = fs.readFileSync(STATES_DATA_PATH, 'utf-8');
-        statesData = JSON.parse(content);
-      }
+      const transaction = db.transaction(() => {
+        // 1. requests 테이블 업데이트
+        const updateRequest = db.prepare(`
+          UPDATE requests SET
+            status = 'sent', quote_price = ?, quote_message = ?,
+            quote_sent_at = ?, updated_at = ?
+          WHERE id = ?
+        `);
 
-      if (!statesData[id]) {
-        statesData[id] = { history: [] };
-      }
+        updateRequest.run(
+          parseInt(price),
+          message,
+          now,
+          now,
+          id
+        );
 
-      statesData[id] = {
-        ...statesData[id],
-        status: 'sent',
-        quotePrice: parseInt(price),
-        quoteDraft: message,
-        sentAt: new Date().toISOString()
-      };
+        // 2. history 테이블에 발송 이벤트 추가
+        const insertHistory = db.prepare(`
+          INSERT INTO history (request_id, type, description, metadata, created_at)
+          VALUES (?, ?, ?, ?, ?)
+        `);
 
-      // 히스토리에 발송 이벤트 추가
-      const sendEvent = {
-        type: 'sent',
-        timestamp: new Date().toISOString(),
-        description: `견적 발송됨 (${parseInt(price).toLocaleString()}원)`
-      };
-
-      if (!statesData[id].history) {
-        statesData[id].history = [];
-      }
-      
-      statesData[id].history.push(sendEvent);
-
-      // 파일에 저장
-      fs.writeFileSync(STATES_DATA_PATH, JSON.stringify(statesData, null, 2));
-
-      return NextResponse.json({ 
-        success: true, 
-        state: statesData[id],
-        scriptResult 
+        insertHistory.run(
+          id,
+          'sent',
+          `견적 발송 완료 (${parseInt(price).toLocaleString()}원)`,
+          JSON.stringify({
+            price: parseInt(price),
+            message,
+            scriptResult
+          }),
+          now
+        );
       });
+
+      // 트랜잭션 실행
+      transaction();
+
+      return NextResponse.json({ success: true, scriptResult });
+
     } else {
       return NextResponse.json({ 
         error: '견적 발송에 실패했습니다.',
@@ -139,6 +140,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
   } catch (error) {
     console.error('Send quote error:', error);
-    return NextResponse.json({ error: '견적 발송 처리 중 오류가 발생했습니다.' }, { status: 500 });
+    return NextResponse.json({ 
+      error: '견적 발송 처리 중 오류가 발생했습니다.' 
+    }, { status: 500 });
   }
 }

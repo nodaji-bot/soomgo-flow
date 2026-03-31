@@ -46,11 +46,12 @@ export interface Request {
   };
   history: HistoryEvent[];
   detail: any;
+  isArchived?: boolean;
 }
 
 export type ViewType = 'list' | 'kanban';
 
-export type FilterType = 'all' | 'grade-a' | 'grade-b' | 'grade-c' | 'status-new' | 'status-pending' | 'status-sent' | 'status-progress' | 'status-completed';
+export type FilterType = 'all' | 'grade-a' | 'grade-b' | 'grade-c' | 'status-new' | 'status-pending' | 'status-sent' | 'status-progress' | 'status-completed' | 'archived';
 
 export interface AppState {
   requests: Request[];

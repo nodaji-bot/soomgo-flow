@@ -48,7 +48,12 @@ export const useStore = create<AppState>((set, get) => ({
 
   setViewType: (viewType) => set({ viewType }),
 
-  setFilter: (filter) => set({ filter }),
+  setFilter: (filter) => {
+    set({ filter });
+    // 아카이브 필터 변경 시 데이터 다시 로드
+    const { loadRequests } = get();
+    loadRequests();
+  },
 
   setShowDetailPanel: (show) => {
     if (!show) {
@@ -65,7 +70,20 @@ export const useStore = create<AppState>((set, get) => ({
   loadRequests: async () => {
     try {
       set({ isLoading: true });
-      const requests = await apiCall('/api/requests');
+      const { filter } = get();
+      
+      // 아카이브 필터에 따라 쿼리 파라미터 설정
+      const isArchiveFilter = filter === 'archived';
+      const queryParams = new URLSearchParams();
+      
+      if (isArchiveFilter) {
+        queryParams.set('archived', 'true');
+      } else {
+        queryParams.set('archived', 'false');
+      }
+      
+      const url = `/api/requests${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      const requests = await apiCall(url);
       set({ requests });
     } catch (error) {
       console.error('Failed to load requests:', error);

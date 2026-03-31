@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
 import { verifyAuth } from '../../../auth/verify/route';
-
-const STATES_DATA_PATH = '/Users/picl/.openclaw/workspace/soomgo-research/data/request-states.json';
+import { getDb } from '@/lib/db';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  // 토큰 검증
   if (!verifyAuth(request)) {
     return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
   }
@@ -19,49 +16,82 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ error: '올바른 등급을 선택해주세요.' }, { status: 400 });
     }
 
-    // 기존 상태 데이터 읽기
-    let statesData = {};
-    if (fs.existsSync(STATES_DATA_PATH)) {
-      const content = fs.readFileSync(STATES_DATA_PATH, 'utf-8');
-      statesData = JSON.parse(content);
+    const db = await getDb();
+    if (!db) {
+      return NextResponse.json({ error: 'DB 연결 실패' }, { status: 500 });
     }
 
-    // 해당 요청의 상태 업데이트
-    if (!statesData[id]) {
-      statesData[id] = {
-        status: 'new',
-        history: []
-      };
-    }
+    const now = new Date().toISOString();
 
-    statesData[id] = {
-      ...statesData[id],
-      grade,
-      gradeReasoning: gradeReasoning || '',
-      quoteDraft: quoteDraft || '',
-      quotePrice: quotePrice || null,
-      status: quoteDraft ? 'pending_approval' : 'classified'
-    };
+    // 트랜잭션으로 requests 업데이트 + history 추가
+    const transaction = db.transaction(() => {
+      // 1. requests 테이블 업데이트
+      const newStatus = quoteDraft ? 'pending_approval' : 'classified';
+      
+      const updateRequest = db.prepare(`
+        UPDATE requests SET
+          grade = ?, grade_reasoning = ?, quote_message = ?, quote_price = ?,
+          status = ?, updated_at = ?
+        WHERE id = ?
+      `);
 
-    // 히스토리에 분류 이벤트 추가
-    const classifyEvent = {
-      type: 'classified',
-      timestamp: new Date().toISOString(),
-      description: `${grade}등급 분류${gradeReasoning ? ': ' + gradeReasoning : ''}`
-    };
+      const result = updateRequest.run(
+        grade, 
+        gradeReasoning || '', 
+        quoteDraft || '', 
+        quotePrice || null,
+        newStatus,
+        now,
+        id
+      );
 
-    if (!statesData[id].history) {
-      statesData[id].history = [];
-    }
-    
-    statesData[id].history.push(classifyEvent);
+      if (result.changes === 0) {
+        throw new Error('요청을 찾을 수 없습니다.');
+      }
 
-    // 파일에 저장
-    fs.writeFileSync(STATES_DATA_PATH, JSON.stringify(statesData, null, 2));
+      // 2. history 테이블에 분류 이벤트 추가
+      const insertHistory = db.prepare(`
+        INSERT INTO history (request_id, type, description, metadata, created_at)
+        VALUES (?, ?, ?, ?, ?)
+      `);
 
-    return NextResponse.json({ success: true, state: statesData[id] });
+      insertHistory.run(
+        id,
+        'classified',
+        `${grade}등급 분류${gradeReasoning ? ': ' + gradeReasoning : ''}`,
+        JSON.stringify({
+          grade,
+          gradeReasoning,
+          quoteDraft,
+          quotePrice
+        }),
+        now
+      );
+
+      // 3. 견적 초안이 있으면 quote_drafted 이벤트도 추가
+      if (quoteDraft) {
+        insertHistory.run(
+          id,
+          'quote_drafted',
+          '견적 초안 작성 완료',
+          JSON.stringify({
+            quoteDraft,
+            quotePrice
+          }),
+          now
+        );
+      }
+    });
+
+    // 트랜잭션 실행
+    transaction();
+
+    return NextResponse.json({ success: true });
+
   } catch (error) {
     console.error('Classify error:', error);
-    return NextResponse.json({ error: '분류 처리 중 오류가 발생했습니다.' }, { status: 500 });
+    return NextResponse.json({ 
+      error: error.message || '분류 처리 중 오류가 발생했습니다.' 
+    }, { status: 500 });
   }
 }

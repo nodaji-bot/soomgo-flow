@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
 import { verifyAuth } from '../../../auth/verify/route';
-
-const STATES_DATA_PATH = '/Users/picl/.openclaw/workspace/soomgo-research/data/request-states.json';
+import { getDb } from '@/lib/db';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  // 토큰 검증
   if (!verifyAuth(request)) {
     return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
   }
@@ -19,47 +16,54 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ error: '거절 사유를 입력해주세요.' }, { status: 400 });
     }
 
-    // 기존 상태 데이터 읽기
-    let statesData = {};
-    if (fs.existsSync(STATES_DATA_PATH)) {
-      const content = fs.readFileSync(STATES_DATA_PATH, 'utf-8');
-      statesData = JSON.parse(content);
+    const db = await getDb();
+    if (!db) {
+      return NextResponse.json({ error: 'DB 연결 실패' }, { status: 500 });
     }
 
-    // 해당 요청의 상태 업데이트
-    if (!statesData[id]) {
-      statesData[id] = {
-        status: 'new',
-        history: []
-      };
-    }
+    const now = new Date().toISOString();
 
-    statesData[id] = {
-      ...statesData[id],
-      status: 'rejected',
-      rejectedReason: reason,
-      rejectedAt: new Date().toISOString()
-    };
+    // 트랜잭션으로 requests 업데이트 + history 추가
+    const transaction = db.transaction(() => {
+      // 1. requests 테이블 업데이트
+      const updateRequest = db.prepare(`
+        UPDATE requests SET
+          status = 'rejected', rejected_reason = ?, rejected_at = ?, updated_at = ?
+        WHERE id = ?
+      `);
 
-    // 히스토리에 거절 이벤트 추가
-    const rejectEvent = {
-      type: 'rejected',
-      timestamp: new Date().toISOString(),
-      description: `요청 거절됨: ${reason}`
-    };
+      const result = updateRequest.run(reason.trim(), now, now, id);
 
-    if (!statesData[id].history) {
-      statesData[id].history = [];
-    }
-    
-    statesData[id].history.push(rejectEvent);
+      if (result.changes === 0) {
+        throw new Error('요청을 찾을 수 없습니다.');
+      }
 
-    // 파일에 저장
-    fs.writeFileSync(STATES_DATA_PATH, JSON.stringify(statesData, null, 2));
+      // 2. history 테이블에 거절 이벤트 추가
+      const insertHistory = db.prepare(`
+        INSERT INTO history (request_id, type, description, metadata, created_at)
+        VALUES (?, ?, ?, ?, ?)
+      `);
 
-    return NextResponse.json({ success: true, state: statesData[id] });
+      insertHistory.run(
+        id,
+        'rejected',
+        `요청 거절: ${reason}`,
+        JSON.stringify({
+          reason: reason.trim()
+        }),
+        now
+      );
+    });
+
+    // 트랜잭션 실행
+    transaction();
+
+    return NextResponse.json({ success: true });
+
   } catch (error) {
     console.error('Reject error:', error);
-    return NextResponse.json({ error: '거절 처리 중 오류가 발생했습니다.' }, { status: 500 });
+    return NextResponse.json({ 
+      error: error.message || '거절 처리 중 오류가 발생했습니다.' 
+    }, { status: 500 });
   }
 }
