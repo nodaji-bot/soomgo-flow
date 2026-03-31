@@ -64,7 +64,7 @@ export function mapRowToFrontend(row: RequestRow, history: HistoryRow[]) {
     customerName: row.name,
     category: row.category || '기타',
     location: row.location || '전국',
-    timeAgo: row.time_ago || '',
+    timeAgo: calculateTimeAgo(row.created_at) || row.time_ago || '',
     competitorCount: row.competitor_count || 0,
     grade: row.grade || 'C',
     status: row.status,
@@ -100,6 +100,20 @@ export function mapRowToFrontend(row: RequestRow, history: HistoryRow[]) {
     lastSeenAt: row.last_seen_at,
     soomgoStatus: row.soomgo_status
   };
+}
+
+function calculateTimeAgo(isoString: string): string {
+  const now = new Date();
+  const then = new Date(isoString);
+  const diffMs = now.getTime() - then.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  const diffHrs = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  
+  if (diffDays > 0) return `${diffDays}일 전`;
+  if (diffHrs > 0) return `${diffHrs}시간 전`;
+  if (diffMin > 0) return `${diffMin}분 전`;
+  return '방금 전';
 }
 
 function typeToTitle(type: string): string {

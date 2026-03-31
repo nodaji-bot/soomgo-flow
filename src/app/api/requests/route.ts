@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const grade = searchParams.get('grade');
     const showArchived = searchParams.get('archived') === 'true';
 
-    let where = showArchived ? '1=1' : 'is_archived = 0';
+    let where = showArchived ? 'is_archived = 1' : 'is_archived = 0';
     const params: any[] = [];
 
     if (status) {

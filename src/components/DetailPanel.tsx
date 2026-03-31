@@ -57,9 +57,10 @@ export function DetailPanel() {
     return null;
   }
 
-  const formatTimestamp = (timestamp: Date) => {
+  const formatTimestamp = (timestamp: Date | string) => {
     const now = new Date();
-    const diff = now.getTime() - timestamp.getTime();
+    const ts = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;
+    const diff = now.getTime() - ts.getTime();
     const diffHours = Math.floor(diff / (1000 * 60 * 60));
     const diffDays = Math.floor(diffHours / 24);
     
