@@ -24,17 +24,28 @@ export function RejectModal() {
   
   const [reason, setReason] = useState('');
   const [customReason, setCustomReason] = useState('');
+  const [isRejecting, setIsRejecting] = useState(false);
 
   if (!selectedRequest || !showRejectModal) {
     return null;
   }
 
-  const handleReject = () => {
+  const handleReject = async () => {
     const finalReason = reason === 'custom' ? customReason : reason;
-    if (finalReason.trim()) {
-      rejectRequest(selectedRequest.id, finalReason.trim());
-      setReason('');
-      setCustomReason('');
+    if (!finalReason.trim()) {
+      alert('거절 사유를 입력해주세요.');
+      return;
+    }
+
+    setIsRejecting(true);
+    try {
+      await rejectRequest(selectedRequest.id, finalReason.trim());
+      alert('요청이 거절되었습니다.');
+      handleClose();
+    } catch (error) {
+      alert('거절 처리 실패: ' + error.message);
+    } finally {
+      setIsRejecting(false);
     }
   };
 
@@ -78,6 +89,7 @@ export function RejectModal() {
                     checked={reason === commonReason}
                     onChange={(e) => setReason(e.target.value)}
                     className="w-4 h-4"
+                    disabled={isRejecting}
                   />
                   <span className="text-sm text-foreground">{commonReason}</span>
                 </label>
@@ -91,6 +103,7 @@ export function RejectModal() {
                   checked={reason === 'custom'}
                   onChange={(e) => setReason(e.target.value)}
                   className="w-4 h-4"
+                  disabled={isRejecting}
                 />
                 <span className="text-sm text-foreground">기타 (직접 입력)</span>
               </label>
@@ -105,6 +118,7 @@ export function RejectModal() {
                 onChange={(e) => setCustomReason(e.target.value)}
                 placeholder="거절 사유를 입력하세요..."
                 className="w-full h-24 p-3 bg-background border border-border rounded text-sm resize-none focus:outline-none focus:border-brand"
+                disabled={isRejecting}
               />
             </div>
           )}
@@ -115,6 +129,7 @@ export function RejectModal() {
               variant="outline"
               className="flex-1"
               onClick={handleClose}
+              disabled={isRejecting}
             >
               취소
             </Button>
@@ -122,9 +137,9 @@ export function RejectModal() {
               variant="destructive"
               className="flex-1"
               onClick={handleReject}
-              disabled={!isValid}
+              disabled={!isValid || isRejecting}
             >
-              거절 확인
+              {isRejecting ? '처리 중...' : '거절 확인'}
             </Button>
           </div>
         </div>

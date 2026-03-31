@@ -60,13 +60,16 @@ export interface AppState {
   showDetailPanel: boolean;
   showConfirmModal: boolean;
   showRejectModal: boolean;
+  isLoading?: boolean;
   setSelectedRequest: (request: Request | null) => void;
   setViewType: (viewType: ViewType) => void;
   setFilter: (filter: FilterType) => void;
   setShowDetailPanel: (show: boolean) => void;
   setShowConfirmModal: (show: boolean) => void;
   setShowRejectModal: (show: boolean) => void;
-  sendEstimate: (requestId: string, message: string) => void;
-  rejectRequest: (requestId: string, reason: string) => void;
+  loadRequests: () => Promise<void>;
+  classifyRequest: (requestId: string, grade: string, gradeReasoning?: string, quoteDraft?: string, quotePrice?: number) => Promise<any>;
+  sendEstimate: (requestId: string, price: number, message: string) => Promise<any>;
+  rejectRequest: (requestId: string, reason: string) => Promise<any>;
   addMemo: (requestId: string, memo: string) => void;
 }
