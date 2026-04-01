@@ -10,25 +10,27 @@ export function ListView() {
   const filteredRequests = requests.filter((request: Request) => {
     switch (filter) {
       case 'all':
-        return true;
+        return !request.isArchived;
       case 'grade-a':
-        return request.grade === 'A';
+        return request.grade === 'A' && !request.isArchived;
       case 'grade-b':
-        return request.grade === 'B';
+        return request.grade === 'B' && !request.isArchived;
       case 'grade-c':
-        return request.grade === 'C';
+        return request.grade === 'C' && !request.isArchived;
       case 'status-new':
-        return request.status === 'new';
+        return request.status === 'new' && !request.isArchived;
       case 'status-pending':
-        return request.status === 'pending_approval';
+        return request.status === 'pending_approval' && !request.isArchived;
       case 'status-sent':
-        return request.status === 'sent';
+        return request.status === 'sent' && !request.isArchived;
       case 'status-progress':
-        return request.status === 'in_progress';
+        return request.status === 'in_progress' && !request.isArchived;
       case 'status-completed':
-        return request.status === 'completed';
+        return request.status === 'completed' && !request.isArchived;
+      case 'archived':
+        return request.isArchived;
       default:
-        return true;
+        return !request.isArchived;
     }
   });
 
